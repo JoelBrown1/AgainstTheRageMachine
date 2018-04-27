@@ -1,0 +1,15 @@
+# Logs
+logs
+*.log
+npm-debug.log*
+
+# Build Output
+/coverage
+/dist
+/local
+/reports
+/node_modules
+
+# Editor & OS
+.idea
+DS_Store
