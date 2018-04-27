@@ -4,6 +4,7 @@
   "description": "SF Hackathon",
   "main": "index.js",
   "scripts": {
+    "start": "http-server src/",
     "test": "test"
   },
   "repository": {
