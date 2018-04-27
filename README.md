@@ -2,19 +2,19 @@
 
 # Sooo...environment issues totally suck right?
 Based on this SO thread: https://stackoverflow.com/questions/34700610/npm-install-wont-install-devdependencies
-I checked my local node production mode using
+I checked my local node production mode using:
 
+```console
 npm config get production
+```
 
-This was coming through as TRUE, in which case anything under devDependencies will not be installed.
+This was coming through as TRUE, in which case anything under devDependencies will not be installed. Running:
 
-Running
-
+```console
 npm config ls -l
+```
 
-Will show where/how this value was set to true. For me it was
-
-/Users/<USERNAME>/.npmrc
+Will show where/how this value was set to true. For me it was `/Users/<USERNAME>/.npmrc`
 
 Clearing this file fixed EVERYTHING.
 
