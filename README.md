@@ -19,3 +19,20 @@ Will show where/how this value was set to true. For me it was `/Users/<USERNAME>
 Clearing this file fixed EVERYTHING.
 
 ## Other stuff (coming soon)
+
+#SailsJS - NodeJS server wrapper documentation
+a [Sails v1](https://sailsjs.com) application
+
+Installation:
+npm install sails -g (will do it globally)
+(we've already created an app so you can skip that step)
+
+go into the "against-the-rage-machine" folder inside 'server' and run
+sails lift
+
+you should be able to see it 
+
+### Links
+
++ [Get started](https://sailsjs.com/get-started)
++ [Sails framework documentation](https://sailsjs.com/documentation)
