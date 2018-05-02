@@ -6,6 +6,8 @@
  */
 
  const axios = require("axios");
+ var blobAdaptor = require("skipper-disk")();
+ var receiving = blobAdaptor.receive();
 
 module.exports = {
     sendFile: function(req, res) {
@@ -13,10 +15,31 @@ module.exports = {
         var image = req.file('userfile');
         // console.log('typeof', typeof image);
 
-        req.file('userfile').upload(function (err, uploadedFiles) {
-            console.log('error', err);
-            console.log(uploadedFiles);
-        });
+        // req.file('userfile').upload(function (err, uploadedFiles) {
+        //     console.log('error', err);
+        //     console.log(uploadedFiles);
+        // });
+
+        req.file('userfile')
+        .on("error", function onError(){
+            console.log("was there an error");
+        })
+        .on("finish", function onSuccess(){
+            console.log("did we finish?");
+        })
+        .pipe(receiving);
+            // .on("error", function onError(){
+            //     console.log("there was an error");
+            // })
+            // .on("finish", function onSuccess(){
+            //     console.log("we are finished");
+            // })
+        
+        // {
+        //     console.log('error', err);
+        //     console.log(uploadedFiles);
+        // });
+
         // // console.log(req.file('userfile'));
         // var data = {
         //     api_key: "qapZyITSrsmbltM_APkK5EDO6utlirmf",
