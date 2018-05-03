@@ -105,15 +105,18 @@
         var dataUrl = canvas.toDataURL('image/png');
         var dataBlob = canvas.toBlob(function(blob){
           var formData = new FormData();
-          formData.append('userfile', blob);
+          formData.append('api_key', "qapZyITSrsmbltM_APkK5EDO6utlirmf");
+          formData.append('api_secret', "p5XwMDtWcuYCKY1RlXmLzrKpGmrRcSOP");
+          formData.append('return_attributes', "emotion");
+          formData.append('image_file', blob);
           axios({
             method: 'post',
-            url: 'http://127.0.0.1:1337/image/',
+            url: 'https://api-us.faceplusplus.com/facepp/v3/detect',
             data: formData,
             headers: { 'Content-Type': 'multipart/form-data' }
           })
             .then(function (response) {
-              console.log('done!');
+              console.log(response.data.faces["0"].attributes.emotion);
             });
         });
 
