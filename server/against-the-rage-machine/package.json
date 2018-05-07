@@ -14,12 +14,17 @@
     "sails": "^1.0.1",
     "sails-hook-grunt": "^3.0.2",
     "sails-hook-orm": "^2.0.0-16",
-    "sails-hook-sockets": "^1.4.0"
+    "sails-hook-sockets": "^1.4.0",
+    "sails.io.js": "^1.2.1",
+    "socket.io-client": "^2.1.0",
+    "watson-developer-cloud": "^3.4.0",
+    "watson-speech": "^0.34.1"
   },
   "devDependencies": {
     "@sailshq/eslint": "^4.19.3"
   },
   "scripts": {
+    "start:dev": "NODE_ENV=development nodemon debug app.js",
     "start": "NODE_ENV=production node app.js",
     "test": "npm run lint && npm run custom-tests && echo 'Done.'",
     "lint": "eslint . --max-warnings=0 --report-unused-disable-directives && echo '✔  Your .js files look good.'",

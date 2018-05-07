@@ -27,6 +27,9 @@ module.exports.routes = {
   '/': {
     view: 'pages/homepage'
   },
+  '/tts': {
+    view: 'pages/tts'
+  },
 
   /***************************************************************************
   *                                                                          *
@@ -44,7 +47,7 @@ module.exports.routes = {
   //  ╠═╣╠═╝║  ║╣ ║║║ ║║╠═╝║ ║║║║║ ║ ╚═╗
   //  ╩ ╩╩  ╩  ╚═╝╝╚╝═╩╝╩  ╚═╝╩╝╚╝ ╩ ╚═╝
 "POST /image/": "ImageController.sendFile",
-
+"POST /api/text-to-speech/token/": "TTSController.getToken",
 
   //  ╦ ╦╔═╗╔╗ ╦ ╦╔═╗╔═╗╦╔═╔═╗
   //  ║║║║╣ ╠╩╗╠═╣║ ║║ ║╠╩╗╚═╗

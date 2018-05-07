@@ -96,6 +96,9 @@ var sttAuthService = new watson.AuthorizationV1(
   )
 );
 app.use('/api/speech-to-text/token', function(req, res) {
+  console.log(
+    'route reached'
+  )
   sttAuthService.getToken(
     {
       url: watson.SpeechToTextV1.URL
