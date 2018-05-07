@@ -1,205 +1,205 @@
 (function () {
-  // The width and height of the captured photo. We will set the
-  // width to the value defined here, but the height will be
-  // calculated based on the aspect ratio of the input stream.
+	// The width and height of the captured photo. We will set the
+	// width to the value defined here, but the height will be
+	// calculated based on the aspect ratio of the input stream.
 
-  var width = 320;    // We will scale the photo width to this
-  var height = 0;     // This will be computed based on the input stream
+	var width = 320;    // We will scale the photo width to this
+	var height = 0;     // This will be computed based on the input stream
 
-  // |streaming| indicates whether or not we're currently streaming
-  // video from the camera. Obviously, we start at false.
+	// |streaming| indicates whether or not we're currently streaming
+	// video from the camera. Obviously, we start at false.
 
-  var streaming = false;
+	var streaming = false;
 
-  // The various HTML elements we need to configure or control. These
-  // will be set by the startup() function.
+	// The various HTML elements we need to configure or control. These
+	// will be set by the startup() function.
 
-  var video = null;
-  var canvas = null;
-  var photo = null;
-  var startbutton = null;
+	var video = null;
+	var canvas = null;
+	var photo = null;
+	var startbutton = null;
+	var imageTray = document.querySelector('.image-tray');
+	var startbutton = document.getElementById('startbutton');
+	var powerToggle = document.getElementById('powerToggle');
+	var PHOTO_CAPTURE_RATE = 2000; // API won't support anything under 1000
+	var callStartedAt;
+	var isMachineOn = false;
 
-  function startup() {
-    video = document.getElementById('video');
-    canvas = document.getElementById('canvas');
-    photo = document.getElementById('photo');
-    startbutton = document.getElementById('startbutton');
+	// Line Chart
+	var myLineChart = new Chart("rageRange", {
+		type: "line",
+		data: {
+			labels: ["One","Two","Three","Four","Five","Six","Seven","Eight","Nine","Ten"],
+			datasets: [{
+				data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+				borderColor: "#ee4444",
+				backgroundColor: "rgba(200,10,10,0.1)",
+				lineTension: 0.05,
+				pointRadius: 0
+			}]
+		},
+		options: {
+			legend: {display: false},
+			tooltips: {enabled: false},
+			scales: {
+				yAxes: [{
+					ticks: {
+						min: 0,
+						max: 100
+					}
+				}],
+				xAxes: [{ display: false }]
+			}
+		}
+	});
 
-    navigator.getMedia = (navigator.getUserMedia ||
-      navigator.webkitGetUserMedia ||
-      navigator.mozGetUserMedia ||
-      navigator.msGetUserMedia);
+	// Gauge Chart
+	var rageGauge = new JustGage({
+		id: "rageGauge",
+		value: 0,
+		min: 0,
+		max: 100,
+		title: "Visitors"
+	});
 
-    navigator.getMedia(
-      {
-        video: true,
-        audio: false
-      },
-      function (stream) {
-        if (navigator.mozGetUserMedia) {
-          video.mozSrcObject = stream;
-        } else {
-          var vendorURL = window.URL || window.webkitURL;
-          video.src = vendorURL.createObjectURL(stream);
-        }
-        video.play();
-      },
-      function (err) {
-        console.log("An error occured! " + err);
-      }
-    );
+	function startMachine(){
+		// callStartedAt = new Date();
+		// debugger;
+		isMachineOn = true;
+		takepicture();
+	}
+	function stopMachine(){
+		isMachineOn = false;
+	}
+	function updateGraphs(newAnger){
+		myLineChart.data.datasets[0].data.unshift(newAnger);
+    	myLineChart.data.datasets[0].data.pop();
+    	myLineChart.update();
 
-    video.addEventListener('canplay', function (ev) {
-      if (!streaming) {
-        height = video.videoHeight / (video.videoWidth / width);
+		// Gauge
+		let sum = myLineChart.data.datasets[0].data.reduce((previous, current) => current += previous);
+		let avg = sum / 10;
+		rageGauge.refresh(avg);
+	}
 
-        // Firefox currently has a bug where the height can't be read from
-        // the video, so we will make assumptions if this happens.
+	function startup() {
+		video = document.getElementById('video');
+		canvas = document.getElementById('canvas');
+		photo = document.getElementById('photo');
 
-        if (isNaN(height)) {
-          height = width / (4 / 3);
-        }
+		navigator.getMedia = (navigator.getUserMedia ||
+			navigator.webkitGetUserMedia ||
+			navigator.mozGetUserMedia ||
+			navigator.msGetUserMedia);
 
-        video.setAttribute('width', width);
-        video.setAttribute('height', height);
-        canvas.setAttribute('width', width);
-        canvas.setAttribute('height', height);
-        streaming = true;
-      }
-    }, false);
+		navigator.getMedia({video: true, audio: false},
+			function (stream) {
+				if (navigator.mozGetUserMedia) {
+					video.mozSrcObject = stream;
+				} else {
+					var vendorURL = window.URL || window.webkitURL;
+					video.src = vendorURL.createObjectURL(stream);
+				}
+				video.play();
+				startbutton.classList.add('hide');
+			},
+			function (err) {
+				console.log("An error occured! " + err);
+			}
+		);
 
-    startbutton.addEventListener('click', function (ev) {
-      takepicture();
-      ev.preventDefault();
-    }, false);
+		video.addEventListener('canplay', function (ev) {
+			if (!streaming) {
+				height = video.videoHeight / (video.videoWidth / width);
 
-    clearphoto();
-    getAudio();
-  }
+				// Firefox currently has a bug where the height can't be read from
+				// the video, so we will make assumptions if this happens.
 
-  // Fill the photo with an indication that none has been
-  // captured.
+				if (isNaN(height)) {
+					height = width / (4 / 3);
+				}
 
-  function clearphoto() {
-    var context = canvas.getContext('2d');
-    context.fillStyle = "#AAA";
-    context.fillRect(0, 0, canvas.width, canvas.height);
+				video.setAttribute('width', width);
+				video.setAttribute('height', height);
+				canvas.setAttribute('width', width);
+				canvas.setAttribute('height', height);
+				streaming = true;
+			}
+		}, false);
 
-    var data = canvas.toDataURL('image/png');
-    photo.setAttribute('src', data);
-  }
+		powerToggle.addEventListener('change', e =>{
+			if(e.target.checked){
+				startMachine();
+			}else{
+				stopMachine();
+			}
+		});
+	}
 
-  // Capture a photo by fetching the current contents of the video
-  // and drawing it into a canvas, then converting that to a PNG
-  // format data URL. By drawing it on an offscreen canvas and then
-  // drawing that to the screen, we can change its size and/or apply
-  // other changes before drawing it.
-  /*POST /speech-to-text/api/v1/recognize?timestamps=true&amp;max_alternatives=3 HTTP/1.1
-Host: stream.watsonplatform.net
-Content-Type: audio/flac
-Authorization: Basic YTM0MzhmNjAtMGFmYy00YjMwLTk2ZjctMWQwM2ZhZTBmOGQ2OmJEZzVMYkpCS0pHMg==
-Cache-Control: no-cache
-Postman-Token: 40615fa6-f72d-4f17-91a1-6f64d563f540
+	// Capture a photo by fetching the current contents of the video
+	// and drawing it into a canvas, then converting that to a PNG
+	// format data URL. By drawing it on an offscreen canvas and then
+	// drawing that to the screen, we can change its size and/or apply
+	// other changes before drawing it.
 
-undefined*/
-  var fileReader = new FileReader();
-  function getAudio() {
-    console.log('getAudio');
-    var file = '/Users/noetibbl/Documents/_WIP/SFHackathon/AgainstTheRageMachine/dist/audio.flac';
-    var blob = new Blob([file], {type: 'audio/flac'});
-    fileReader.addEventListener('load', _handleAudioFileLoad, false);
-    fileReader.readAsBinaryString(blob);
+	function uploadFileToAPI(pictureTakenAt){
+		return (blob) =>{
+			var now = pictureTakenAt;
+			var formData = new FormData();
+			formData.append('api_key', "qapZyITSrsmbltM_APkK5EDO6utlirmf");
+			formData.append('api_secret', "p5XwMDtWcuYCKY1RlXmLzrKpGmrRcSOP");
+			formData.append('return_attributes', "emotion");
+			formData.append('image_file', blob);
 
-    // var data = new FormData();
-    // data.append('file', '/Users/noetibbl/Documents/_WIP/SFHackathon/AgainstTheRageMachine/dist/audio.flac');
-    // var xhr = new XMLHttpRequest();
-    // xhr.withCredentials = true;
+			axios({
+				method: 'post',
+				url: 'https://api-us.faceplusplus.com/facepp/v3/detect',
+				data: formData,
+				headers: { 'Content-Type': 'multipart/form-data' }
+			}).then(response => {
+				// Handle API response
+				var beforeNow = now;
+				var rightNow = new Date();
+				var timeDiff = rightNow.getTime() - beforeNow.getTime();
+				if(isMachineOn){
+					if(timeDiff > PHOTO_CAPTURE_RATE){
+						takepicture();
+					}else{
+						setTimeout(takepicture, PHOTO_CAPTURE_RATE - timeDiff);
+					}
+				}
+				if(response.data.faces.length){
+					console.log(response.data.faces[0].attributes.emotion);
+					updateGraphs(response.data.faces[0].attributes.emotion.anger);
+				}else{
+					console.log('No Faces detected');
+				}
+			});
+		}
+	}
 
-    // xhr.addEventListener("readystatechange", function () {
-    //   if (this.readyState === 4) {
-    //     console.log(this.responseText);
-    //   }
-    // });
+	function takepicture() {
+		var context = canvas.getContext('2d');
+		if (width && height) {
+			canvas.width = width;
+			canvas.height = height;
+			context.drawImage(video, 0, 0, width, height);
 
-    // xhr.open("POST", "https://stream.watsonplatform.net/speech-to-text/api/v1/recognize?timestamps=true&max_alternatives=3", true);
-    // xhr.setRequestHeader("Content-Type", "audio/flac");
-    // xhr.setRequestHeader("Authorization", "Basic YTM0MzhmNjAtMGFmYy00YjMwLTk2ZjctMWQwM2ZhZTBmOGQ2OmJEZzVMYkpCS0pHMg==");
-    // // xhr.setRequestHeader("Cache-Control", "no-cache");
+			// Push image file into history
+			var dataUrl = canvas.toDataURL('image/png');
+			var imageFile = new Image();
 
-    // xhr.send(blob);
+			imageFile.src = dataUrl;
+			imageTray.prepend(imageFile);
 
-    // var headers = {
-    //   Authorization: "Basic YTM0MzhmNjAtMGFmYy00YjMwLTk2ZjctMWQwM2ZhZTBmOGQ2OmJEZzVMYkpCS0pHMg==",
-    //   // "Access-Control-Allow-Origin": "*",
-    //   // "Access-Control-Allow-Credentials": "true",
-    //   // "Access-Control-Allow-Methods": "GET,HEAD,OPTIONS,POST,PUT",
-    //   // "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-    //   "content-type": "audio/flac"
-    // };
-    // axios({
-    //   method: "post",
-    //   url: "https://stream.watsonplatform.net/speech-to-text/api/v1/recognize?timestamps=true&max_alternatives=3",
-    //   headers: headers,
-    //   data: data,
-    // }).then(function (resp) {
-    //   console.log("json response:", resp.data);
-    // }).catch(function (err) {
-    //   console.log('response error', err);
-    // });
-  }
+			// Upload image to Face++ APIs
+			var now = new Date();
+			canvas.toBlob(uploadFileToAPI(now));
+		}
+	}
 
-  function _handleAudioFileLoad(evt) {
-    console.log('audio file: ', fileReader.result);
-    var headers = {
-      Authorization: "Basic YTM0MzhmNjAtMGFmYy00YjMwLTk2ZjctMWQwM2ZhZTBmOGQ2OmJEZzVMYkpCS0pHMg==",
-      // "Access-Control-Allow-Origin": "*",
-      // "Access-Control-Allow-Credentials": "true",
-      // "Access-Control-Allow-Methods": "GET,HEAD,OPTIONS,POST,PUT",
-      // "Access-Control-Allow-Headers": "Origin, X-Requested-With, Content-Type, Accept, Authorization",
-      "content-type": "audio/flac"
-    };
-    axios({
-      method: "post",
-      url: "https://stream.watsonplatform.net/speech-to-text/api/v1/recognize?timestamps=true&max_alternatives=3",
-      headers: headers,
-      data: evt.target.result,
-    }).then(function (resp) {
-      console.log("json response:", resp.data);
-    }).catch(function (err) {
-      console.log('response error', err);
-    });
-  }
-
-  function takepicture() {
-    var context = canvas.getContext('2d');
-    if (width && height) {
-      canvas.width = width;
-      canvas.height = height;
-      context.drawImage(video, 0, 0, width, height);
-
-
-      var dataUrl = canvas.toDataURL('image/png');
-      var dataBlob = canvas.toBlob(function (blob) {
-        var formData = new FormData();
-        formData.append('userfile', blob);
-        axios({
-          method: 'post',
-          url: 'http://127.0.0.1:1337/image/',
-          data: formData,
-          headers: { 'Content-Type': 'multipart/form-data' }
-        })
-          .then(function (response) {
-            console.log('done!');
-          });
-      });
-
-      photo.setAttribute('src', dataUrl);
-    } else {
-      clearphoto();
-    }
-  }
-
-  // Set up our event listener to run the startup process
-  // once loading is complete.
-  window.addEventListener('load', startup, false);
+	// Set up our event listener to run the startup process
+	// once loading is complete.
+	// window.addEventListener('load', startup, false);
+	startbutton.addEventListener('click', startup);
 })();

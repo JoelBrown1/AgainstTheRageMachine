@@ -1,6 +1,10 @@
 # Against The Rage Machine
 
-# Sooo...environment issues totally suck right?
+## Working the demo
+
+When you load the demo page, you'll have to click the "Enable Feed" button *before* toggling the giant ON/OFF button in the corner. This is because, [in order to play a video](https://developers.google.com/web/updates/2017/09/autoplay-policy-changes), the user needs to interact with the page in some way.
+
+### Sooo...environment issues totally suck right?
 Based on this SO thread: https://stackoverflow.com/questions/34700610/npm-install-wont-install-devdependencies
 I checked my local node production mode using:
 
@@ -18,9 +22,7 @@ Will show where/how this value was set to true. For me it was `/Users/<USERNAME>
 
 Clearing this file fixed EVERYTHING.
 
-## Other stuff (coming soon)
-
-#SailsJS - NodeJS server wrapper documentation
+### SailsJS - NodeJS server wrapper documentation
 a [Sails v1](https://sailsjs.com) application
 
 Installation:
