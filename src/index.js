@@ -1,7 +1,7 @@
 import SpeechToText from './SpeechToText';
 
 let isRecording = false;
-const stt = new SpeechToText(analyzeText);
+const stt = new SpeechToText(requestResultId);
 const toggleButton = document.getElementById('powerToggle');
 toggleButton.addEventListener('click', handleToggle);
 
@@ -15,16 +15,46 @@ function handleToggle(evt) {
   }
 }
 
-function analyzeText(text) {
-  // var jsonData = JSON.stringify({
-  //   "text": "Team, I know that times are tough! Product sales have been disappointing for the past three quarters. We have a competitive product, but we need to do a better job of selling it!"
-  // });
-
+function requestResultId(text) {
   var data = JSON.stringify({
+    "language": "eng",
     "text": text
   });
+  
+  var xhr = new XMLHttpRequest();
+  xhr.withCredentials = true;
+  
+  xhr.addEventListener("readystatechange", analyzeText);
+  
+  xhr.open("POST", "https://svc02.api.bitext.com/sentiment/", true);
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.setRequestHeader("Authorization", "Bearer 798cbcdd5090478b86b0c54ac61cce69");
+  xhr.setRequestHeader("Access-Control-Allow-Origin", "http://localhost:8080/");
+  xhr.setRequestHeader("Cache-Control", "no-cache");
+  
+  xhr.send(data);
+}
 
-  console.log('data: ', data);
+function analyzeText() {
+  if (this.readyState === 4) {
+    // bittext api
+    var resultId = JSON.parse(this.responseText).resultid;
+    var data = null;
+    var xhr = new XMLHttpRequest();
+    xhr.withCredentials = true;
+
+    xhr.addEventListener("readystatechange", function () {
+      if (this.readyState === 4) {
+        console.log(JSON.parse(this.responseText));
+      }
+    });
+
+    xhr.open("GET", `https://svc02.api.bitext.com/sentiment/${resultId}`, true);
+    xhr.setRequestHeader("Authorization", "Bearer 798cbcdd5090478b86b0c54ac61cce69");
+    xhr.setRequestHeader("Cache-Control", "no-cache");
+   
+    xhr.send(data);
+  }
 
   // axios({
   //   method: 'post',

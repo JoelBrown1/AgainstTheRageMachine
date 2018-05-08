@@ -19,10 +19,12 @@ class SpeechToText {
   }
 
   start() {
+    console.log('stt start');
     this.recognition.start();
   }
 
   stop() {
+    console.log('stt stop');
     this.recognition.stop();
   }
 

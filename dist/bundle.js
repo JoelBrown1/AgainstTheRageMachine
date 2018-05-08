@@ -19,7 +19,6 @@ var SpeechToText = function () {
     var speechText = '';
 
     resultCallback = cb;
-    console.log('cb: ', resultCallback);
 
     try {
       var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
@@ -34,11 +33,13 @@ var SpeechToText = function () {
   _createClass(SpeechToText, [{
     key: 'start',
     value: function start() {
+      console.log('stt start');
       this.recognition.start();
     }
   }, {
     key: 'stop',
     value: function stop() {
+      console.log('stt stop');
       this.recognition.stop();
     }
   }, {
@@ -58,7 +59,6 @@ var SpeechToText = function () {
       var mobileRepeatBug = current == 1 && transcript == event.results[0][0].transcript;
 
       if (!mobileRepeatBug) {
-        console.log('cb: ', resultCallback);
         resultCallback(transcript);
         console.log('transcript: ', transcript);
       }
@@ -79,7 +79,7 @@ var _SpeechToText2 = _interopRequireDefault(_SpeechToText);
 function _interopRequireDefault(obj) { return obj && obj.__esModule ? obj : { default: obj }; }
 
 var isRecording = false;
-var stt = new _SpeechToText2.default(analyzeText);
+var stt = new _SpeechToText2.default(requestResultId);
 var toggleButton = document.getElementById('powerToggle');
 toggleButton.addEventListener('click', handleToggle);
 
@@ -93,16 +93,46 @@ function handleToggle(evt) {
   }
 }
 
-function analyzeText(text) {
-  // var jsonData = JSON.stringify({
-  //   "text": "Team, I know that times are tough! Product sales have been disappointing for the past three quarters. We have a competitive product, but we need to do a better job of selling it!"
-  // });
-
+function requestResultId(text) {
   var data = JSON.stringify({
+    "language": "eng",
     "text": text
   });
 
-  console.log('data: ', data);
+  var xhr = new XMLHttpRequest();
+  xhr.withCredentials = true;
+
+  xhr.addEventListener("readystatechange", analyzeText);
+
+  xhr.open("POST", "https://svc02.api.bitext.com/sentiment/", true);
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.setRequestHeader("Authorization", "Bearer 798cbcdd5090478b86b0c54ac61cce69");
+  xhr.setRequestHeader("Access-Control-Allow-Origin", "http://localhost:8080/");
+  xhr.setRequestHeader("Cache-Control", "no-cache");
+
+  xhr.send(data);
+}
+
+function analyzeText() {
+  if (this.readyState === 4) {
+    // bittext api
+    var resultId = JSON.parse(this.responseText).resultid;
+    var data = null;
+    var xhr = new XMLHttpRequest();
+    xhr.withCredentials = true;
+
+    xhr.addEventListener("readystatechange", function () {
+      if (this.readyState === 4) {
+        console.log(JSON.parse(this.responseText));
+      }
+    });
+
+    xhr.open("GET", 'https://svc02.api.bitext.com/sentiment/' + resultId, true);
+    xhr.setRequestHeader("Authorization", "Bearer 798cbcdd5090478b86b0c54ac61cce69");
+    xhr.setRequestHeader("Cache-Control", "no-cache");
+
+    xhr.send(data);
+  }
 
   // axios({
   //   method: 'post',
