@@ -1,7 +1,7 @@
 import SpeechToText from './SpeechToText';
 
 let isRecording = false;
-const stt = new SpeechToText(requestResultId);
+const stt = new SpeechToText(watsonAnalyze);
 const toggleButton = document.getElementById('powerToggle');
 toggleButton.addEventListener('click', handleToggle);
 
@@ -45,7 +45,7 @@ function analyzeText() {
 
     xhr.addEventListener("readystatechange", function () {
       if (this.readyState === 4) {
-        console.log(JSON.parse(this.responseText));
+        handleResponse(JSON.parse(this.responseText));
       }
     });
 
@@ -55,29 +55,38 @@ function analyzeText() {
    
     xhr.send(data);
   }
+}
 
-  // axios({
-  //   method: 'post',
-  //   url: 'http://localhost:9000/watson/tone-analyzer',
-  //   data: jsonData
-  // }).then(response => {
-  //   // console.log('reponse: ', reponse);
-  // });
+function watsonAnalyze(text) {
+  var data = JSON.stringify({
+    "text": text
+  });
   
-  // var xhr = new XMLHttpRequest();
-  // xhr.withCredentials = true;
+  var xhr = new XMLHttpRequest();
+  xhr.withCredentials = true;
   
-  // xhr.addEventListener("readystatechange", function () {
-  //   if (this.readyState === 4) {
-  //     console.log(this.responseText);
-  //   }
-  // });
+  xhr.addEventListener("readystatechange", function () {
+    if (this.readyState === 4) {
+      handleResponse(JSON.parse(this.responseText));
+    }
+  });
   
-  // xhr.open("POST", "https://gateway.watsonplatform.net/tone-analyzer/api/v3/tone?version=2017-09-21");
-  // xhr.setRequestHeader("Content-Type", "application/json");
-  // xhr.setRequestHeader('Access-Control-Allow-Methods', 'GET,PUT,POST,DELETE,PATCH,OPTIONS');
-  // xhr.setRequestHeader("Authorization", "Basic ZGMxMWU2YjQtMzA2NC00YjAzLWIzOGItNjc4NDMxZWM5MGJhOllCb0FsMUd5aDhySg==");
-  // xhr.setRequestHeader("Cache-Control", "no-cache");
+  xhr.open("POST", "https://gateway.watsonplatform.net/tone-analyzer/api/v3/tone?version=2017-09-21");
+  xhr.setRequestHeader("Content-Type", "application/json");
+  xhr.setRequestHeader("Authorization", "Basic ZGMxMWU2YjQtMzA2NC00YjAzLWIzOGItNjc4NDMxZWM5MGJhOllCb0FsMUd5aDhySg==");
+  xhr.setRequestHeader("Cache-Control", "no-cache");
   
-  // xhr.send(data);
+  xhr.send(data);
+}
+
+function handleResponse(json) {
+  const emotion = json.document_tone.tones[0];
+  let score = 0; 
+  console.log('emotion: ', emotion);
+  if(emotion.tone_id === 'anger') {
+    console.log('score: ', emotion.score);
+    score = emotion.score;
+  }
+  const evt = new CustomEvent('anger-response', { score });
+  document.body.dispatchEvent(evt);
 }
