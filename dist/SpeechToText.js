@@ -22,7 +22,7 @@ var SpeechToText = function () {
     try {
       var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       this.recognition = new SpeechRecognition();
-      this.recognition.continuous = true;
+      // this.recognition.continuous = true;
       this.recognition.onresult = this.handleOnResult;
     } catch (e) {
       console.error(e);
@@ -61,6 +61,8 @@ var SpeechToText = function () {
         resultCallback(transcript);
         console.log('transcript: ', transcript);
       }
+
+      this.recognition.start();
     }
   }]);
 

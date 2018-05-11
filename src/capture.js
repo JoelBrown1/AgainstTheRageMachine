@@ -21,6 +21,8 @@
 	var imageTray = document.querySelector('.image-tray');
 	var startbutton = document.getElementById('startbutton');
 	var powerToggle = document.getElementById('powerToggle');
+	var modal = document.querySelector('.modal');
+	var modalClose = document.querySelector('.close');
 	var PHOTO_CAPTURE_RATE = 2000; // API won't support anything under 1000
 	var callStartedAt;
 	var isMachineOn = false;
@@ -34,6 +36,12 @@
 				data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
 				borderColor: "#ee4444",
 				backgroundColor: "rgba(200,10,10,0.1)",
+				lineTension: 0.05,
+				pointRadius: 0
+			},{
+				data: [0, 0, 0, 0, 0, 0, 0, 0, 0, 0],
+				borderColor: "#4444ee",
+				backgroundColor: "rgba(10,10,250,0.1)",
 				lineTension: 0.05,
 				pointRadius: 0
 			}]
@@ -77,15 +85,32 @@
     	myLineChart.update();
 
 		// Gauge
-		let sum = myLineChart.data.datasets[0].data.reduce((previous, current) => current += previous);
-		let avg = sum / 10;
+		let sum = myLineChart.data.datasets[0].data.slice(0,3).reduce((previous, current) => current += previous);
+		let avg = sum / 3;
 		rageGauge.refresh(avg);
+		if(avg > 95){
+			modal.classList.add('open');
+		}
+	}
+	function updateTextGraph(newAnger){
+		myLineChart.data.datasets[1].data.unshift(newAnger);
+    	myLineChart.data.datasets[1].data.pop();
+    	myLineChart.update();
 	}
 
 	function startup() {
 		video = document.getElementById('video');
 		canvas = document.getElementById('canvas');
 		photo = document.getElementById('photo');
+		document.body.addEventListener('anger-response', function(evt){
+			console.log('current anger level', evt.detail);
+			updateTextGraph(evt.detail.score * 100);
+		});
+
+		modalClose.addEventListener('click', function(){
+			console.log('close');
+			modal.classList.remove('open');
+		});
 
 		navigator.getMedia = (navigator.getUserMedia ||
 			navigator.webkitGetUserMedia ||

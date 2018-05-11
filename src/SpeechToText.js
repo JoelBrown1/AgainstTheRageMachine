@@ -46,6 +46,8 @@ class SpeechToText {
       resultCallback(transcript);
       console.log('transcript: ', transcript);
     }
+
+    // this.recognition.start();
   }
 }
 

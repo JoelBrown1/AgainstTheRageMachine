@@ -23,7 +23,7 @@ var SpeechToText = function () {
     try {
       var SpeechRecognition = window.SpeechRecognition || window.webkitSpeechRecognition;
       this.recognition = new SpeechRecognition();
-      this.recognition.continuous = true;
+      // this.recognition.continuous = true;
       this.recognition.onresult = this.handleOnResult;
     } catch (e) {
       console.error(e);
@@ -62,6 +62,8 @@ var SpeechToText = function () {
         resultCallback(transcript);
         console.log('transcript: ', transcript);
       }
+
+      this.recognition.start();
     }
   }]);
 
@@ -136,6 +138,8 @@ function analyzeText() {
 }
 
 function watsonAnalyze(text) {
+  var transcriptLog = document.querySelector('.transcript');
+  transcriptLog.insertAdjacentHTML('beforeend', '<p>' + text + '</p>');
   var data = JSON.stringify({
     "text": text
   });
@@ -161,11 +165,11 @@ function handleResponse(json) {
   var emotion = json.document_tone.tones[0];
   var score = 0;
   console.log('emotion: ', emotion);
-  if (emotion.tone_id === 'anger') {
+  if (emotion && emotion.tone_id === 'anger') {
     console.log('score: ', emotion.score);
     score = emotion.score;
   }
-  var evt = new CustomEvent('anger-response', { score: score });
+  var evt = new CustomEvent('anger-response', { detail: { score: score } });
   document.body.dispatchEvent(evt);
 }
 },{"./SpeechToText":1}]},{},[2]);
