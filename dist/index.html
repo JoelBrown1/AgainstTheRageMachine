@@ -1,0 +1,68 @@
+<!doctype html>
+<html>
+
+<head>
+	<title>“Against the Rage” Machine</title>
+	<meta charset='utf-8'>
+	<link href="https://fonts.googleapis.com/css?family=Caveat|Special+Elite" rel="stylesheet">
+	<link rel="stylesheet" href="./main.css" type="text/css" media="all">
+	<script src="https://unpkg.com/axios/dist/axios.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/Chart.js/2.7.0/Chart.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/justgage/1.2.9/justgage.min.js"></script>
+	<script src="https://cdnjs.cloudflare.com/ajax/libs/raphael/2.2.7/raphael.min.js"></script>
+</head>
+
+<body>
+	<header>
+		<h1>“Against the Rage” Machine</h1>
+		<label class='toggle-label'>
+			<input type='checkbox' id="powerToggle" />
+			<span class='back'>
+				<span class='toggle'></span>
+				<span class='label on'>ON</span>
+				<span class='label off'>OFF</span>
+			</span>
+		</label>
+	</header>
+	<div class="contentarea">
+		<div class="displays">
+			<div class="live-feeds">
+				<div class="video">
+					<div class="camera">
+						<h2>Video Feed</h2>
+						<video id="video">Video stream not available.</video>
+						<button class="enableFeed" id="startbutton">Enable Feed</button>
+					</div>
+					<canvas id="canvas"></canvas>
+					<div class="output">
+						<h2>Video Captures</h2>
+						<div class="image-tray">
+						</div>
+					</div>
+				</div>
+				<div class="audio">
+					<h2>Live Transcript</h2>
+					<div class="transcript">
+							<p>Edison bulb messenger bag chicharrones thundercats keffiyeh godard actually XOXO truffaut cliche. La croix salvia mustache beard, prism direct trade cloud bread try-hard neutra single-origin coffee.</p>
+							<p>Man bun beard deep v paleo photo booth bitters cloud bread chartreuse XOXO godard twee four loko glossier 8-bit. Listicle coloring book flexitarian gentrify you probably haven't heard of them roof party swag humblebrag normcore woke poutine umami. Vape biodiesel coloring book air plant.</p>
+							<p>Shabby chic gentrify YOLO wolf trust fund, mixtape ethical marfa craft beer vape bitters. Cliche letterpress small batch aesthetic wolf kickstarter lyft freegan kinfolk. Shabby chic slow-carb plaid 3 wolf moon air plant chartreuse.</p>
+					</div>
+				</div>
+			</div>
+			<div class="image-graphs">
+				<div class="gauge-chart">
+					<h2>Normalized Rage Index</h2>
+					<div id="rageGauge"></div>
+				</div>
+				<div class="line-chart">
+					<h2>Rage Over Time</h2>
+					<canvas id="rageRange" width="100" height="50"></canvas>
+				</div>
+			</div>
+		</div>
+	</div>
+  <script src="./capture.js"></script>
+  <script src="./bundle.js"></script>
+</body>
+
+</html>
