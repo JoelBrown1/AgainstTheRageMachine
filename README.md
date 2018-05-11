@@ -2,6 +2,14 @@
 
 ## Working the demo
 
+### Security-free Chrome:
+In order to avoid CORS issues, you'll need to run Chrome with its security features disabled. On a Mac, open Terminal and enter the following:
+
+```console
+open -n -a "Google Chrome" --args --user-data-dir=/tmp/temp_chrome_user_data_dir http://localhost:8080/ --disable-web-security
+```
+
+### Starting the camera and the 'machine'
 When you load the demo page, you'll have to click the "Enable Feed" button *before* toggling the giant ON/OFF button in the corner. This is because, [in order to play a video](https://developers.google.com/web/updates/2017/09/autoplay-policy-changes), the user needs to interact with the page in some way.
 
 ### Sooo...environment issues totally suck right?
